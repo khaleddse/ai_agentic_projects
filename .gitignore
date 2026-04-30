@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# uv
+uv.lock
+
+# Environment variables
+.env
+.env.*
+.env.example
+
+# Project data
+**/aboutMe/
+**/.gradio/
+
+# IDE
+.idea/
+.vscode/
+*.swp
