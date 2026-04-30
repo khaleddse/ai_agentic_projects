@@ -11,4 +11,6 @@ dependencies = [
     "pypdf>=6.10.2",
     "python-dotenv>=1.2.2",
     "requests>=2.33.1",
+    "openai-agents>=0.0.19",
+    "sendgrid>=6.11.0",
 ]
