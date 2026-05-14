@@ -1,0 +1,93 @@
+design_task:
+  description: >
+    Take the high level requirements and prepare a detailed design for the engineer.
+    Everything should be in 1 python module. Outline the classes and methods clearly.
+    Requirements: {requirements}
+    IMPORTANT: Output the design in markdown format with classes, methods, and their signatures.
+  expected_output: >
+    A detailed markdown design identifying all classes and functions in the module.
+  agent: engineering_lead
+  output_file: output/{module_name}_design.md
+
+
+code_task:
+  description: >
+    Implement the design from the engineering lead.
+    Requirements: {requirements}
+    Module: {module_name}, Class: {class_name}
+
+    Steps you MUST follow:
+    1. Write the complete Python module
+    2. Use python_file_executor to run the module and check for errors: file_path="{module_name}"
+    3. If there are errors, fix them and run again
+    4. Only submit when the module runs without errors (return code 0)
+
+    IMPORTANT: Output ONLY raw Python code, no markdown, no backticks.
+  expected_output: >
+    A working Python module with zero import or runtime errors.
+    Raw Python code only — no markdown, no code fences.
+  agent: backend_engineer
+  context:
+    - design_task
+  output_file: output/{module_name}
+
+
+frontend_task:
+  description: >
+    Write a Gradio UI in app.py that demonstrates the backend class from {module_name}.
+    Requirements: {requirements}
+
+    MANDATORY GRADIO PATTERN for multiple functions:
+      import gradio as gr
+      from {module_name_no_ext} import {class_name}
+
+      obj = {class_name}()
+
+      def func_a(...): ...
+      def func_b(...): ...
+
+      tab1 = gr.Interface(fn=func_a, inputs=[...], outputs="text", title="Action A")
+      tab2 = gr.Interface(fn=func_b, inputs=[...], outputs="text", title="Action B")
+      gr.TabbedInterface([tab1, tab2], ["Action A", "Action B"]).launch()
+
+    FORBIDDEN: iface.add_fn(), chaining methods on gr.Interface
+    REQUIRED: gr.TabbedInterface to combine multiple functions
+
+    Steps you MUST follow:
+    1. Write app.py using the mandatory pattern above
+    2. Use python_executor to check syntax:
+       code="import ast; ast.parse(open('app.py').read()); print('syntax ok')"
+    3. Fix any syntax errors and re-check
+    4. Submit only when syntax check passes
+
+    IMPORTANT: Output ONLY raw Python code, no markdown, no backticks.
+  expected_output: >
+    A working app.py using gr.TabbedInterface, with passing syntax check.
+    Raw Python code only — no markdown, no code fences.
+  agent: frontend_engineer
+  context:
+    - code_task
+  output_file: output/app.py
+
+
+qa_task:
+  description: >
+    Write unit tests for {module_name} and save them as test_{module_name}.
+    Requirements: {requirements}
+
+    Steps you MUST follow:
+    1. Write comprehensive unit tests covering all main functions
+    2. Use pytest_runner to run the tests: test_file="test_{module_name}"
+    3. If tests fail, fix the test file (or note genuine bugs in the module)
+    4. Re-run until all tests pass (return code 0)
+    5. Report the final pytest output
+
+    IMPORTANT: Output ONLY raw Python code, no markdown, no backticks.
+  expected_output: >
+    A test_{module_name} file where all pytest tests pass.
+    Include the final pytest output showing all tests passed.
+    Raw Python code only — no markdown, no code fences.
+  agent: qa_engineer
+  context:
+    - code_task
+  output_file: output/test_{module_name}
